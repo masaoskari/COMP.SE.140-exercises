@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  service1:
+    build: ./service1
+    ports:
+      - "8199:8199"
+    depends_on:
+      - service2
+    environment:
+      - PORT=8199
+      - SERVICE2_URL=http://service2:5000
+    #networks:
+    #  - my-network
+
+  service2:
+    build: ./service2
+    #networks:
+    #  - my-network
+
+# Here we could also define a network, but in default docker-compose creates
+# a (default) network with bridge driver for all services in the same docker-compose.yml file.
+# Let that here for example.
+#networks:
+  #my-network:

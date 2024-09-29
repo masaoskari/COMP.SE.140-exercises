@@ -1,0 +1,9 @@
+What containers share with the host? 
+
+Containers use the host kernel to perform the necessary computations required by the services when they are running. Although these containers operate as isolated processes managed by Docker, that is why they see only their own processes. That is visible in our services output JSON. When the containers use the host kernel the host is actually sharing its CPU, memory and I/O resources with the host. 
+
+The fact that containers are using the host kernel is also visible in the service's output JSON, where the "os_uptime" field matches the uptime of the host machine. This shows that containers rely on the host's operating system and kernel, sharing the same system uptime. To make that more clearly visible I also added to the "service_uptime" to output JSON to see actually how long the services have been up and running. 
+
+Information from containers disk storage shows that they use the host’s diskspace with their overlay filesystem that is built on top of the host filesystem. That is why when we run the linux command "df –h /" we see the size of the host’s filesystem and not just what the container actually is using. 
+
+In networking-related things, the containers share with the host the default bridge network interface (eth0) created automatically by Docker Compose. That enables containers to communicate with each other and with the host machine while being isolated from external networks. Containers can also access the internet through the host's network. In that bridge network, we can expose ports that are visible to the host machine. This allows services running in the containers to be accessible from the host or even from outside the network.

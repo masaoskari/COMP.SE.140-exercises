@@ -1,0 +1,22 @@
+Used LLM tool:
+- GitHub copilot
+
+Motivation/reason to use LLM
+- GitHub copilot is integrated to my vs-code editor and it gives automatically suggestions when I write code.
+- Motivation to use LLM is also that it's kind of nowadays software development that you can utilize LLMs in
+development, and you can only learn to use them only if you use those in daily basis.
+
+How and why LLM helped
+- Copilot was good giving suggestions when I started to write different functions or Dockerfiles. More precise
+it gave nice suggestions for parsing the linux command outputs to JSON format. Also I made it to generate docstrings
+that saved lot of work.
+
+What kind of mistakes LLM did
+- When Copilot was suggesting the different services Dockerfiles it used commands for example to start server in development.
+That was not that I wanted because I wanted to use same commands as in production to deploy my services like npm build and start.
+
+What were things that LLM was not able to provide
+- For some reason when writing .txt files the Copilot is not suggesting anything.
+- Copilot suggest to use different libraries to get the service informations and was not as good I wanted in suggesting
+getting information with executing linux command for example with Python or TS.
+- Also when asked what resources containers share with the host they provided over general ideas what they shared and then actually needed to investigate things with my own with the help of the internet.

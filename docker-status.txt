@@ -1,0 +1,9 @@
+CONTAINER ID   IMAGE                          COMMAND                  CREATED         STATUS         PORTS                    NAMES
+9b0d83613d99   compse140-exercises-service1   "docker-entrypoint.s…"   4 seconds ago   Up 2 seconds   0.0.0.0:8199->8199/tcp   compse140-exercises-service1-1
+35510a70303d   compse140-exercises-service2   "gunicorn --bind 0.0…"   4 seconds ago   Up 3 seconds                            compse140-exercises-service2-1
+
+NETWORK ID     NAME                          DRIVER    SCOPE
+9842ffe16346   bridge                        bridge    local
+6a171fc151a2   compse140-exercises_default   bridge    local
+6576589e054e   host                          host      local
+d31f4e3e1720   none                          null      local

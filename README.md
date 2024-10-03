@@ -6,6 +6,8 @@ Branch `exercise1` contains exercise 1 submission and it can be tested as follow
 
 ````
 git clone -b exercise1 https://github.com/masaoskari/COMP.SE.140-exercises.git
+cd COMP.SE.140-exercises
+
 docker-compose up –build
 
 # wait for 10 s...

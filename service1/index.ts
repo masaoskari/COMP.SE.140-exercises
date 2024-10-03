@@ -43,11 +43,11 @@ async function collectServicesInformation() {
   const service2Info = await response.json();
   const processes = await getRunningProcesses();
   const diskSpace = await getAvailableDiscSpace();
-  const addresses = getIpAddressInformation();
+  const ipAddresses = getIpAddressInformation();
 
   const information = {
     service1: {
-      addresses,
+      ipAddresses,
       diskSpace,
       processes,
       serviceUptime: process.uptime(),
@@ -83,8 +83,11 @@ function getIpAddressInformation() {
     for (const net of netInfo) {
       const familyV4Value = typeof net.family === "string" ? "IPv4" : 4;
       const familyV6Value = typeof net.family === "string" ? "IPv6" : 6;
-
-      if (net.family === familyV4Value || net.family === familyV6Value) {
+      // Skip non internal IPs
+      if (
+        (net.family === familyV4Value || net.family === familyV6Value) &&
+        !net.internal
+      ) {
         if (!addresses[name]) {
           addresses[name] = [];
         }

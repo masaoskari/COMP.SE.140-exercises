@@ -19,7 +19,8 @@ services:
     #  - my-network
 
 # Here we could also define a network, but in default docker-compose creates
-# a (default) network with bridge driver for all services in the same docker-compose.yml file.
-# Let that here for example.
+# a (default) network with bridge driver for all services in the same docker-compose.yml file, so we can use that.
+# Let that here as an example (also then we need to add this network to service definitions).
+
 #networks:
   #my-network:

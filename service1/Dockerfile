@@ -7,6 +7,10 @@ RUN apk update && apk add --no-cache procps
 
 WORKDIR /app
 
+# Copy pakage.json and package-lock.json first to install npm packages
+# first and then copy the rest of the files to take advantage of caching
+# build layer. This way we don't have to install npm packages again if
+# we change the source code but not the required packages.
 COPY package*.json .
 
 RUN npm install

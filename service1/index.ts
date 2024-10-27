@@ -8,13 +8,73 @@ const app: Application = express();
 const port = process.env.PORT || 3000;
 const service2_url = process.env.SERVICE2_URL;
 
-app.get("/", async (_: Request, res: Response) => {
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+let count: number = 0;
+let requestQueue: (() => void)[] = [];
+let isProcessing = false;
+
+async function processNextRequest() {
+  if (requestQueue.length === 0) {
+    isProcessing = false;
+    return;
+  }
+
+  isProcessing = true;
+  const nextRequest = requestQueue.shift();
+  if (nextRequest) {
+    nextRequest();
+  }
+}
+
+app.get("/", (req: Request, res: Response) => {
+  requestQueue.push(async () => {
+    try {
+      console.log("Request received!");
+      const information = await collectServicesInformation();
+      res.json(information);
+      count += 1;
+      console.log(`Response ${count} sent!`);
+
+      // Sleep for 2 seconds after responding
+      await sleep(2000);
+      console.log("Slept for 2 seconds after responding");
+
+      // Process the next request in the queue
+      processNextRequest();
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Failed to fetch data from services.");
+      processNextRequest();
+    }
+  });
+
+  if (!isProcessing) {
+    processNextRequest();
+  }
+});
+
+app.post("/stop", async (_: Request, res: Response) => {
   try {
-    const information = await collectServicesInformation();
-    res.json(information);
+    res.status(200).send("Stopping containers.");
+    exec(
+      "docker stop $(docker ps --filter 'name=compse140-exercises' -q)",
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error when stopping containers: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.error(`Stderr: ${stderr}`);
+          return;
+        }
+        console.log(`Stdout: ${stdout}`);
+      }
+    );
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Failed to fetch data from services.");
+    console.log(error);
   }
 });
 
@@ -25,6 +85,16 @@ app.listen(port, () => {
 //
 // Utility functions (in real-world scenarios, these would be in separate files)
 //
+
+/**
+ * Ensures the application closes without errors on SIGTERM.
+ *
+ * Listens for the SIGTERM signal and logs a shutdown message before exiting.
+ */
+process.on("SIGTERM", async () => {
+  console.log("Received SIGTERM, shutting down application.");
+  process.exit();
+});
 
 /**
  * Collect information from both service1 and service2.

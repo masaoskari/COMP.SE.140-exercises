@@ -1,15 +1,15 @@
-version: "3.9"
-
 services:
   service1:
     build: ./service1
-    ports:
-      - "8199:8199"
     depends_on:
       - service2
+    deploy:
+      replicas: 3
     environment:
       - PORT=8199
       - SERVICE2_URL=http://service2:5000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     #networks:
     #  - my-network
 
@@ -18,6 +18,12 @@ services:
     #networks:
     #  - my-network
 
+  nginx:
+    build: ./nginx
+    ports:
+      - "8081:8081"
+    depends_on:
+      - service1
 # Here we could also define a network, but in default docker-compose creates
 # a (default) network with bridge driver for all services in the same docker-compose.yml file, so we can use that.
 # Let that here as an example (also then we need to add this network to service definitions).

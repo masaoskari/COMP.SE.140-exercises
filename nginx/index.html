@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NGINX handson</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .centered-container {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="centered-container">
+      <textarea id="responseArea" rows="20" cols="100"></textarea>
+      <br />
+      <button id="reqButton">REQUEST</button>
+      <button id="stopButton">STOP</button>
+    </div>
+  </body>
+  <script>
+    const reqButton = document.getElementById("reqButton");
+    const stopButton = document.getElementById("stopButton");
+    const responseArea = document.getElementById("responseArea");
+
+    reqButton.onclick = async function () {
+      try {
+        const response = await fetch("/api");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.text();
+        responseArea.value = data;
+      } catch (error) {
+        responseArea.value = `Error: ${error.message}`;
+      }
+    };
+
+    stopButton.onclick = async function () {
+      try {
+        const response = await fetch("/api/stop", { method: "POST" });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.text();
+        responseArea.value = data;
+      } catch (error) {
+        consoloe.log(`Error: ${error.message}`);
+      }
+    };
+  </script>
+</html>

@@ -3,8 +3,7 @@ FROM node:21-alpine
 # To get working -x flag in ps command in alpine image we need to install procps package. 
 # Here we would use bullseye as base image but its a lot bigger so its better to use alpine.
 # See for eg: https://github.com/dotnet/vscode-csharp/issues/2165
-RUN apk update && apk add --no-cache procps
-
+RUN apk update && apk add --no-cache procps docker-cli
 WORKDIR /app
 
 # Copy pakage.json and package-lock.json first to install npm packages

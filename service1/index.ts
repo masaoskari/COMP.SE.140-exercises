@@ -12,47 +12,17 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-let count: number = 0;
-let requestQueue: (() => void)[] = [];
 let isProcessing = false;
 
-async function processNextRequest() {
-  if (requestQueue.length === 0) {
-    isProcessing = false;
-    return;
-  }
-
-  isProcessing = true;
-  const nextRequest = requestQueue.shift();
-  if (nextRequest) {
-    nextRequest();
-  }
-}
-
-app.get("/", (req: Request, res: Response) => {
-  requestQueue.push(async () => {
-    try {
-      console.log("Request received!");
-      const information = await collectServicesInformation();
-      res.json(information);
-      count += 1;
-      console.log(`Response ${count} sent!`);
-
-      // Sleep for 2 seconds after responding
-      await sleep(2000);
-      console.log("Slept for 2 seconds after responding");
-
-      // Process the next request in the queue
-      processNextRequest();
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Failed to fetch data from services.");
-      processNextRequest();
-    }
-  });
-
-  if (!isProcessing) {
-    processNextRequest();
+app.get("/", async (_: Request, res: Response) => {
+  if (isProcessing)
+    return res.status(503).send("Service busy. Try again later!");
+  try {
+    const information = await collectServicesInformation();
+    res.json(information);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Failed to fetch data from services.");
   }
 });
 

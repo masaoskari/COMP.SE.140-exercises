@@ -34,6 +34,11 @@
       try {
         const response = await fetch("/api");
         if (!response.ok) {
+          if (response.status === 503) {
+            responseArea.value =
+              "All services busy. Wait a couple of seconds and try again!";
+            return;
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.text();
@@ -47,6 +52,11 @@
       try {
         const response = await fetch("/api/stop", { method: "POST" });
         if (!response.ok) {
+          if (response.status === 503) {
+            responseArea.value =
+              "Cannot stop, all services busy. Wait a couple of seconds and try again!";
+            return;
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.text();

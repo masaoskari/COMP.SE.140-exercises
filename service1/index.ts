@@ -15,18 +15,30 @@ function sleep(ms: number) {
 let isProcessing = false;
 
 app.get("/", async (_: Request, res: Response) => {
-  if (isProcessing)
+  if (isProcessing) {
+    // Here we could do only return but desided to be more user friendly and
+    // respond for clients that service is busy. We could also do
+    // queue for requests and then respond those like syncronously
+    // but I think this approach is simpler and shows better the service's
+    // status.
     return res.status(503).send("Service busy. Try again later!");
+  }
   try {
+    isProcessing = true;
     const information = await collectServicesInformation();
     res.json(information);
+    await sleep(2000);
   } catch (error) {
     console.error(error);
     res.status(500).send("Failed to fetch data from services.");
+  } finally {
+    isProcessing = false;
   }
 });
 
 app.post("/stop", async (_: Request, res: Response) => {
+  if (isProcessing)
+    return res.status(503).send("Service busy. Try again later!");
   try {
     res.status(200).send("Stopping containers.");
     exec(

@@ -15,14 +15,8 @@ function sleep(ms: number) {
 let isProcessing = false;
 
 app.get("/", async (_: Request, res: Response) => {
-  if (isProcessing) {
-    // Here we could do only return but desided to be more user friendly and
-    // respond for clients that service is busy. We could also do
-    // queue for requests and then respond those like syncronously
-    // but I think this approach is simpler and shows better the service's
-    // status.
-    return res.status(503).send("Service busy. Try again later!");
-  }
+  // Ignore request if the previous request is in processing
+  if (isProcessing) return;
   try {
     isProcessing = true;
     const information = await collectServicesInformation();
@@ -37,10 +31,12 @@ app.get("/", async (_: Request, res: Response) => {
 });
 
 app.post("/stop", async (_: Request, res: Response) => {
-  if (isProcessing)
-    return res.status(503).send("Service busy. Try again later!");
+  if (isProcessing) return;
   try {
-    res.status(200).send("Stopping containers.");
+    res
+      .status(200)
+      .send("Stopping containers. See from the terminal more information.");
+    // Stopping only this exercise containers by filtering these with name
     exec(
       "docker stop $(docker ps --filter 'name=compse140-exercises' -q)",
       (error, stdout, stderr) => {

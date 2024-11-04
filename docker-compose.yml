@@ -8,6 +8,7 @@ services:
     environment:
       - PORT=8081
       - SERVICE2_URL=http://service2:5000
+    # Docker socket so that we can shut down containers from the service a
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

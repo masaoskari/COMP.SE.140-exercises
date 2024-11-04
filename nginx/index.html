@@ -15,10 +15,17 @@
       .centered-container {
         text-align: center;
       }
+      #serviceInfo {
+        height: 20px;
+        margin: 0;
+        color: red;
+      }
     </style>
   </head>
   <body>
     <div class="centered-container">
+      <p id="serviceInfo"></p>
+      <br />
       <textarea id="responseArea" rows="20" cols="100"></textarea>
       <br />
       <button id="reqButton">REQUEST</button>
@@ -29,41 +36,40 @@
     const reqButton = document.getElementById("reqButton");
     const stopButton = document.getElementById("stopButton");
     const responseArea = document.getElementById("responseArea");
+    const serviceInfo = document.getElementById("serviceInfo");
 
-    reqButton.onclick = async function () {
+    let isRequestInProgress = false;
+
+    reqButton.onclick = () => handleRequest("/api");
+    stopButton.onclick = () => handleRequest("/api/stop", { method: "POST" });
+
+    async function handleRequest(url, options = {}) {
+      if (isRequestInProgress) {
+        serviceInfo.innerText =
+          "Services are busy. Wait a second and try again!";
+        return;
+      }
+      isRequestInProgress = true;
       try {
-        const response = await fetch("/api");
+        const response = await fetch(url, {
+          signal: AbortSignal.timeout(2000),
+          ...options,
+        });
         if (!response.ok) {
-          if (response.status === 503) {
-            responseArea.value =
-              "All services busy. Wait a couple of seconds and try again!";
-            return;
-          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.text();
         responseArea.value = data;
       } catch (error) {
-        responseArea.value = `Error: ${error.message}`;
-      }
-    };
-
-    stopButton.onclick = async function () {
-      try {
-        const response = await fetch("/api/stop", { method: "POST" });
-        if (!response.ok) {
-          if (response.status === 503) {
-            responseArea.value =
-              "Cannot stop, all services busy. Wait a couple of seconds and try again!";
-            return;
-          }
-          throw new Error(`HTTP error! status: ${response.status}`);
+        // Ignore timeout errors but show other errors. We just don't want to wait
+        // each request forever. User can make new request when the services are again up.
+        if (error.name !== "TimeoutError") {
+          responseArea.value = `Error: ${error.message}`;
         }
-        const data = await response.text();
-        responseArea.value = data;
-      } catch (error) {
-        consoloe.log(`Error: ${error.message}`);
+      } finally {
+        isRequestInProgress = false;
+        serviceInfo.innerText = "";
       }
-    };
+    }
   </script>
 </html>

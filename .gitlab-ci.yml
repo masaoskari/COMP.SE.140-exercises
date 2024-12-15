@@ -1,0 +1,6 @@
+test:
+  stage: test
+  tags:
+    - docker-runner
+  script:
+    - echo "CI run successfully!"

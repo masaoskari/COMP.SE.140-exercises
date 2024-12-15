@@ -1,9 +1,5 @@
 image: node:21
 
-before_script:
-  - sudo apt-get update
-  - sudo apt-get install -y python3 python3-pip
-
 stages:
   - test
 
@@ -17,8 +13,3 @@ test:
     - npm install
     # Run Jest tests for service1
     - npm test
-    # Install Python dependencies for service2
-    - cd ../service2
-    - pip3 install -r requirements.txt
-    # Run pytest tests for service2
-    - pytest

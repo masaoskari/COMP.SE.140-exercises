@@ -1,4 +1,4 @@
-image: node:21
+image: python:3.11
 
 stages:
   - test
@@ -8,8 +8,6 @@ test:
   tags:
     - docker-runner
   script:
-    # Install Node.js dependencies for service1
-    - cd service1
-    - npm install
-    # Run Jest tests for service1
-    - npm test
+    - cd service2
+    - pip install -r requirements.txt
+    - pytest

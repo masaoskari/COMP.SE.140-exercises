@@ -1,22 +1,23 @@
 stages:
+  - build
   - test
 
-test-jest:
-  image: node:21
-  stage: test
+build:
+  image: docker:latest
+  stage: build
   tags:
     - docker-runner
+  services:
+    - docker:dind
   script:
-    - cd service1
-    - npm install
-    - npm run test
+    - docker-compose -f docker-compose.yml up -d --build
 
-test-python:
-  image: python:3.11
-  stage: test
-  tags:
-    - docker-runner
-  script:
-    - cd service2
-    - pip install -r requirements.txt
-    - pytest
+test:
+    image: node:latest
+    stage: test
+    tags:
+        - docker-runner
+    script:
+        - cd service1
+        - npm install
+        - npm run test

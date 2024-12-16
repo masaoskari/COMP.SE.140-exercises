@@ -1,9 +1,18 @@
-image: python:3.11
-
 stages:
   - test
 
-test:
+test-jest:
+  image: node:21
+  stage: test
+  tags:
+    - docker-runner
+  script:
+    - cd service1
+    - npm install
+    - npm run test
+
+test-python:
+  image: python:3.11
   stage: test
   tags:
     - docker-runner

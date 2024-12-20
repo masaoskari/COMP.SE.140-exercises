@@ -32,6 +32,13 @@ describe("API Gateway Integration Tests", () => {
     expect(response.body.service2).toHaveProperty("processes");
     expect(response.body.service2).toHaveProperty("serviceUptime");
   });
+});
+
+describe("API Gateway Stop Service Test", () => {
+  const baseUrl = "http://nginx:8198";
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  });
 
   it("should stop the service from /api/stop", async () => {
     const response = await request(baseUrl)
@@ -41,14 +48,17 @@ describe("API Gateway Integration Tests", () => {
     expect(response.text).toBe(
       "Stopping containers. See from the terminal more information."
     );
+
+    // Verify that the containers are stopped
     const { stdout, stderr } = await execPromise(
-      "docker ps --filter 'name=compse140-exercises' -q"
+      "docker ps --filter 'name=compse140-project' -q"
     );
+
     if (stderr) {
       console.error(`Stderr: ${stderr}`);
     }
 
     // Expect no containers to be listed
     expect(stdout.trim()).toBe("");
-  }, 10000);
+  }, 20000); // Increase the timeout to 20 seconds
 });

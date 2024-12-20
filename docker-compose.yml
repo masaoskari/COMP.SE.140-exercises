@@ -29,5 +29,4 @@ services:
 
 networks:
   test-network:
-    external: true
     driver: bridge

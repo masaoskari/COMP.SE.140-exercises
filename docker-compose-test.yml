@@ -1,12 +1,6 @@
 services:
   test-container:
     build: ./test
-    networks:
-      - test-network
+    network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-networks:
-  test-network:
-    external: true
-    driver: bridge

@@ -21,7 +21,8 @@ integration-test:
   image: node:21
   stage: integration-test
   services:
-    - docker:dind
+    - name: nginx:latest
+      alias: nginx
   tags:
     - docker-runner
   script:

@@ -5,7 +5,7 @@ import util from "util";
 const execPromise = util.promisify(exec);
 
 describe("API Gateway Integration Tests", () => {
-  const baseUrl = "http://nginx:8198";
+  const baseUrl = "http://localhost:8198";
 
   afterEach(async () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -40,7 +40,7 @@ describe("API Gateway Integration Tests", () => {
 });
 
 describe("API Gateway Stop Service Test", () => {
-  const baseUrl = "http://nginx:8198";
+  const baseUrl = "http://localhost:8198";
   afterEach(async () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   });

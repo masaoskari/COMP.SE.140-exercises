@@ -4,11 +4,6 @@ stages:
 integration-test:
   image: docker:latest
   stage: integration-test
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
   tags:
     - docker-runner
   before_script:

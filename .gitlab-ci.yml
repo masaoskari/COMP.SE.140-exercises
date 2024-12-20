@@ -12,7 +12,7 @@ integration-test:
   tags:
     - docker-runner
   before_script:
-    - apk add --no-cache nodejs npm
+    - apk add --no-cache nodejs npm curl
   script:
     - docker-compose -f docker-compose.yml up -d
     - sleep 20

@@ -1,23 +1,26 @@
 stages:
-  - build
-  - test
+  - deploy
+  - integration-test
 
-build:
-  image: docker:latest
-  stage: build
+deploy:
+  image: docker/compose:latest
+  stage: deploy
   tags:
     - docker-runner
   services:
     - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   script:
     - docker-compose -f docker-compose.yml up -d --build
 
-test:
-    image: node:latest
-    stage: test
-    tags:
-        - docker-runner
-    script:
-        - cd service1
-        - npm install
-        - npm run test
+integration-test:
+  image: node:21
+  stage: integration-test
+  tags:
+    - docker-runner
+  script:
+    - cd service1/test
+    - npm install supertest jest
+    - npx jest integration.test.ts

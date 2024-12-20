@@ -14,7 +14,7 @@ integration-test:
   before_script:
     - apk add --no-cache nodejs npm curl
   script:
-    - docker network create test-network
+    - docker network create --driver bridge test-network
     - docker-compose -f docker-compose.yml up -d
     - docker-compose ps
     - docker-compose logs nginx

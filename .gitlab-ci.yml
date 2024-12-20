@@ -14,12 +14,12 @@ integration-test:
   before_script:
     - apk add --no-cache nodejs npm curl
   script:
-    - docker network create test-network
+    - docker network create compse140-project_test-network
     - docker-compose -f docker-compose.yml up -d
     - docker-compose ps
     - docker-compose logs nginx
     - docker network ls
-    - until curl -s http://localhost:8198 > /dev/null; do echo "Waiting for Nginx..."; sleep 5; done
+    - until curl -s http://nginx:8198 > /dev/null; do echo "Waiting for Nginx..."; sleep 5; done
     - cd service1/test
     - npm install supertest jest
     - npx jest integration.test.ts

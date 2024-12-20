@@ -16,7 +16,8 @@ integration-test:
   script:
     - docker network create test-network
     - docker-compose -f docker-compose.yml up -d
-    - until curl -s http://nginx:8198 > /dev/null; do echo "Waiting for Nginx..."; sleep 5; done
+    - docker network ls
+    - until curl -s http://localhost:8198 > /dev/null; do echo "Waiting for Nginx..."; sleep 5; done
     - cd service1/test
     - npm install supertest jest
     - npx jest integration.test.ts

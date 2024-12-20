@@ -1,7 +1,7 @@
 import request from "supertest";
 
 describe("API Gateway Integration Tests", () => {
-  const baseUrl = "http://nginx:8198";
+  const baseUrl = "http://localhost:8198";
 
   it("should return 401 for unauthorized access", async () => {
     const response = await request(baseUrl).get("/");

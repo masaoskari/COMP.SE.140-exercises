@@ -21,11 +21,17 @@ integration-test:
   image: node:21
   stage: integration-test
   services:
-    - name: nginx:latest
-      alias: nginx
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
   tags:
     - docker-runner
+  before_script:
+    - apk add --no-cache docker-compose
   script:
+    - docker-compose -f docker-compose.yml up -d
     - cd service1/test
     - npm install supertest jest
     - npx jest integration.test.ts
+    - docker-compose -f docker-compose.yml down

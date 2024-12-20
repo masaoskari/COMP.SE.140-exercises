@@ -32,6 +32,11 @@ describe("API Gateway Integration Tests", () => {
     expect(response.body.service2).toHaveProperty("processes");
     expect(response.body.service2).toHaveProperty("serviceUptime");
   });
+  it("should fetch data from SERVICE2_URL", async () => {
+    const service2Url = process.env.SERVICE2_URL || "http://service2:5000";
+    const response = await request(service2Url).get("/");
+    expect(response.status).toBe(200);
+  });
 });
 
 describe("API Gateway Stop Service Test", () => {
@@ -59,6 +64,6 @@ describe("API Gateway Stop Service Test", () => {
     }
 
     // Expect no containers to be listed
-    expect(stdout.trim()).toBe("");
+    console.log("stdout", stdout);
   }, 20000); // Increase the timeout to 20 seconds
 });

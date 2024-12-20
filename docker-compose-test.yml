@@ -3,6 +3,8 @@ services:
     build: ./test
     networks:
       - test-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
   test-network:

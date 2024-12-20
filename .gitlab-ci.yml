@@ -20,6 +20,8 @@ deploy:
 integration-test:
   image: node:21
   stage: integration-test
+  services:
+    - docker:dind
   tags:
     - docker-runner
   script:

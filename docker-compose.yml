@@ -8,12 +8,15 @@ services:
     environment:
       - PORT=8081
       - SERVICE2_URL=http://service2:5000
-    # Docker socket so that we can shut down containers from the service a
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - test-network
 
   service2:
     build: ./service2
+    networks:
+      - test-network
 
   nginx:
     build: ./nginx
@@ -21,3 +24,9 @@ services:
       - "8198:8198"
     depends_on:
       - service1
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge

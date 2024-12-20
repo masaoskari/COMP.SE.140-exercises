@@ -31,7 +31,7 @@ app.post("/stop", async (_: Request, res: Response) => {
       .send("Stopping containers. See from the terminal more information.");
     // Stopping only this exercise containers by filtering these with name
     exec(
-      "docker stop $(docker ps --filter 'name=compse140-exercises' -q)",
+      "docker stop $(docker ps --filter 'name=compse140-project' -q)",
       (error, stdout, stderr) => {
         if (error) {
           console.error(`Error when stopping containers: ${error.message}`);

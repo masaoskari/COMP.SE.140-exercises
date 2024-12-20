@@ -1,4 +1,8 @@
 import request from "supertest";
+import { exec } from "child_process";
+import util from "util";
+
+const execPromise = util.promisify(exec);
 
 describe("API Gateway Integration Tests", () => {
   const baseUrl = "http://nginx:8198";
@@ -37,5 +41,14 @@ describe("API Gateway Integration Tests", () => {
     expect(response.text).toBe(
       "Stopping containers. See from the terminal more information."
     );
+    const { stdout, stderr } = await execPromise(
+      "docker ps --filter 'name=compse140-exercises' -q"
+    );
+    if (stderr) {
+      console.error(`Stderr: ${stderr}`);
+    }
+
+    // Expect no containers to be listed
+    expect(stdout.trim()).toBe("");
   }, 10000);
 });

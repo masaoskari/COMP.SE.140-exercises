@@ -1,0 +1,10 @@
+services:
+  test-container:
+    build: ./test
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    external: true
+    driver: bridge

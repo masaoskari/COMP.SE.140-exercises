@@ -16,6 +16,9 @@ integration-test:
   script:
     - docker network create test-network
     - docker-compose -f docker-compose.yml up -d
+    - docker-compose ps
+    - docker-compose logs nginx
+    - curl -v http://host.docker.internal:8198/
     - docker network ls
     - until curl -s http://localhost:8198 > /dev/null; do echo "Waiting for Nginx..."; sleep 5; done
     - cd service1/test

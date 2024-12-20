@@ -2,9 +2,11 @@ FROM node:21-alpine
 
 WORKDIR /app
 
+COPY package*.json .
+
+RUN npm install
+
 COPY . .
 
-RUN npm install supertest jest
-
-CMD ["npx", "jest" ,"integration.test.ts"]
+CMD ["npm", "run" ,"test"]
 

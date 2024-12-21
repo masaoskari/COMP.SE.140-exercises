@@ -7,10 +7,6 @@ const execPromise = util.promisify(exec);
 describe("API Gateway Integration Tests", () => {
   const baseUrl = "http://localhost:8198";
 
-  //afterEach(async () => {
-  //  await new Promise((resolve) => setTimeout(resolve, 2000));
-  //});
-
   it("should return 401 for unauthorized access", async () => {
     const response = await request(baseUrl).get("/");
     expect(response.status).toBe(401);

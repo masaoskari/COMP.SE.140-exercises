@@ -13,7 +13,7 @@
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "test": "jest --runInBand"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC"

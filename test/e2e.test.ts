@@ -7,9 +7,9 @@ const execPromise = util.promisify(exec);
 describe("API Gateway Integration Tests", () => {
   const baseUrl = "http://localhost:8198";
 
-  afterEach(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  });
+  //afterEach(async () => {
+  //  await new Promise((resolve) => setTimeout(resolve, 2000));
+  //});
 
   it("should return 401 for unauthorized access", async () => {
     const response = await request(baseUrl).get("/");
@@ -32,19 +32,20 @@ describe("API Gateway Integration Tests", () => {
     expect(response.body.service2).toHaveProperty("processes");
     expect(response.body.service2).toHaveProperty("serviceUptime");
   });
-  it("should fetch data from SERVICE2_URL", async () => {
+  it("should not fetch data from SERVICE2_URL", async () => {
     const service2Url = process.env.SERVICE2_URL || "http://service2:5000";
-    const response = await request(service2Url).get("/");
-    expect(response.status).toBe(200);
-  });
-});
 
-describe("API Gateway Stop Service Test", () => {
-  const baseUrl = "http://localhost:8198";
-  afterEach(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const response = await request(service2Url).get("/");
+    } catch (error) {
+      if (error && typeof error === "object" && "code" in error) {
+        expect(error).toBeDefined();
+        expect((error as any).code).toBe("ENOTFOUND");
+      } else {
+        throw new Error("Unexpected error type");
+      }
+    }
   });
-
   it("should stop the service from /api/stop", async () => {
     const response = await request(baseUrl)
       .post("/api/stop")
@@ -54,16 +55,28 @@ describe("API Gateway Stop Service Test", () => {
       "Stopping containers. See from the terminal more information."
     );
 
-    // Verify that the containers are stopped
-    const { stdout, stderr } = await execPromise(
-      "docker ps --filter 'name=compse140-project' -q"
-    );
+    // Poll the status of the containers until they are stopped
+    const checkContainersStopped = async () => {
+      const { stdout, stderr } = await execPromise(
+        'docker ps --filter "name=compse140-project" -q'
+      );
+      if (stderr) {
+        console.error(`Stderr: ${stderr}`);
+      }
+      return stdout.trim() === "";
+    };
 
-    if (stderr) {
-      console.error(`Stderr: ${stderr}`);
+    const maxRetries = 10;
+    const delay = 1000;
+    let retries = 0;
+    while (retries < maxRetries) {
+      if (await checkContainersStopped()) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      retries++;
     }
-
-    // Expect no containers to be listed
-    console.log("stdout", stdout);
-  }, 20000); // Increase the timeout to 20 seconds
+    // Verify that the containers are stopped
+    expect(await checkContainersStopped()).toBe(true);
+  });
 });

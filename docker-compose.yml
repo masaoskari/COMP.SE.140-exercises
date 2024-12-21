@@ -1,3 +1,4 @@
+name: compse140-project
 services:
   service1:
     build: ./service1

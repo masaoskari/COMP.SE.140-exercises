@@ -1,7 +1,7 @@
 stages:
   - test
 
-test:
+e2e-test:
   image: docker:latest
   stage: test
   services:
@@ -12,5 +12,6 @@ test:
   tags:
     - docker-runner
   script:
-    - docker-compose -f docker-compose.yml up -d
-    - docker-compose -f docker-compose-test.yml up --build --exit-code-from test-container
+    - docker-compose -f docker-compose.yml -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
+  after_script:
+    - docker-compose -f docker-compose.yml -f docker-compose-test.yml down

@@ -1,9 +1,10 @@
 import express, { Request, Response, Application } from "express";
 
-const app: Application = express();
+const browserApp: Application = express();
+const apiApp: Application = express();
 
-app.use(express.text());
-
+browserApp.use(express.text());
+apiApp.use(express.text());
 const nginx_url = process.env.NGINX_URL || "http://nginx:3000";
 
 const forwardRequestToNginx = async (req: Request, res: Response, path: string, method: string = "GET") => {
@@ -27,16 +28,31 @@ const forwardRequestToNginx = async (req: Request, res: Response, path: string, 
   }
 };
 
-app.get("/", (req: Request, res: Response) => {
+type State = "INIT" | "PAUSED" | "RUNNING" | "SHUTDOWN";
+
+let currentState: State = "INIT";
+
+const getState = (): State => currentState;
+
+// App 1 (browser app) routes
+browserApp.get("/", (req: Request, res: Response) => {
   forwardRequestToNginx(req, res, "/");
 });
 
-app.get("/request", (req: Request, res: Response) => {
+browserApp.get("/request", (req: Request, res: Response) => {
   forwardRequestToNginx(req, res, "/api/request");
 });
 
-app.post("/stop", (req: Request, res: Response) => {
+browserApp.post("/stop", (req: Request, res: Response) => {
   forwardRequestToNginx(req, res, "/api/stop", "POST");
 });
 
-export default app;
+// App 2 (rest api) routes
+apiApp.get("/state", (req: Request, res: Response) => {
+    res.setHeader("Content-Type", "text/plain");
+    res.send(getState());
+});
+
+
+
+export { browserApp, apiApp };

@@ -40,8 +40,8 @@
 
     let isRequestInProgress = false;
 
-    reqButton.onclick = () => handleRequest("/api");
-    stopButton.onclick = () => handleRequest("/api/stop", { method: "POST" });
+    reqButton.onclick = () => handleRequest("/request");
+    stopButton.onclick = () => handleRequest("/stop", { method: "POST" });
 
     async function handleRequest(url, options = {}) {
       if (isRequestInProgress) {

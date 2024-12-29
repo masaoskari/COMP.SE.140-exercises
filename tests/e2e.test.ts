@@ -13,7 +13,7 @@ describe("API Gateway Integration Tests", () => {
   });
 
   it("should return service information from /api", async () => {
-    const response = await request(baseUrl).get("/api").auth("nginx", "nginx");
+    const response = await request(baseUrl).get("/request").auth("nginx", "nginx");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("service1");
     expect(response.body).toHaveProperty("service2");
@@ -44,7 +44,7 @@ describe("API Gateway Integration Tests", () => {
   });
   it("should stop the service from /api/stop", async () => {
     const response = await request(baseUrl)
-      .post("/api/stop")
+      .post("/stop")
       .auth("nginx", "nginx");
     expect(response.status).toBe(200);
     expect(response.text).toBe(

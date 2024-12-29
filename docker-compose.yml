@@ -12,22 +12,29 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - test-network
+      - app-network
 
   service2:
     build: ./service2
     networks:
-      - test-network
+      - app-network
 
   nginx:
     build: ./nginx
-    ports:
-      - "8198:8198"
     depends_on:
       - service1
     networks:
-      - test-network
+      - app-network
+  gateway:
+    build: ./gateway
+    ports:
+      - "8198:8198"
+      - "8197:8197"
+    environment:
+      - NGINX_URL=http://nginx:3000
+    networks:
+      - app-network
 
 networks:
-  test-network:
+  app-network:
     driver: bridge

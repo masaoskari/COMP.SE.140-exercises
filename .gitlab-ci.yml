@@ -9,11 +9,11 @@ browser-endpoint-test:
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
+    TEST_COMMAND: "npm run test:browser"
   tags:
     - docker-runner
   script:
     - docker-compose -f docker-compose.yml -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
-    - npm run test:browser
   after_script:
     - docker-compose -f docker-compose.yml -f docker-compose-test.yml down
 
@@ -25,11 +25,11 @@ state-api-test:
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
+    TEST_COMMAND: "npm run test:state-api"
   tags:
     - docker-runner
   script:
     - docker-compose -f docker-compose.yml -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
-    - npm run test:state-api
   after_script:
     - docker-compose -f docker-compose.yml -f docker-compose-test.yml down
 

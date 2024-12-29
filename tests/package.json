@@ -12,9 +12,10 @@
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.2"
   },
-  "scripts": {
-    "test": "jest"
-  },
+"scripts": {
+    "test:browser": "jest browser-endpoint.test.ts",
+    "test:state-api": "jest rest-api.test.ts"
+},
   "author": "",
   "license": "ISC"
 }

@@ -4,6 +4,16 @@ import util from "util";
 
 const execPromise = util.promisify(exec);
 
+describe("Rest API Tests", () => {
+  const baseUrl = "http://localhost:8197";
+  it ("Should get the state of the system", async () => {
+    const response = await request(baseUrl).get("/state");
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toMatch(/text\/plain/);
+    expect(response.text).toBe("INIT");
+  });
+});
+
 describe("Browser Integration Tests", () => {
   const baseUrl = "http://localhost:8198";
 
@@ -74,15 +84,5 @@ describe("Browser Integration Tests", () => {
     }
     // Verify that the containers are stopped
     expect(await checkContainersStopped()).toBe(true);
-  });
-});
-
-describe("Rest API Tests", () => {
-  const baseUrl = "http://localhost:8197";
-  it ("Should get the state of the system", async () => {
-    const response = await request(baseUrl).get("/state");
-    expect(response.status).toBe(200);
-    expect(response.headers['content-type']).toMatch(/text\/plain/);
-    expect(response.text).toBe("INIT");
   });
 });

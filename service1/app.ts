@@ -1,19 +1,24 @@
 import express, { Request, Response, Application } from "express";
 import { exec } from "child_process";
-import { collectServicesInformation, testMock, sleep } from "./utils";
+import { collectServicesInformation, sleep } from "./utils";
 
 const app: Application = express();
 const service2_url = process.env.SERVICE2_URL || "http://localhost:5000";
 
 let isProcessing = false;
 
-app.get("/", async (_: Request, res: Response) => {
+app.get("/", async (req: Request, res: Response) => {
   // Ignore request if the previous request is in processing
   if (isProcessing) return;
   try {
     isProcessing = true;
     const information = await collectServicesInformation(service2_url);
-    res.json(information);
+    if (req.headers["content-type"] === "text/plain") {
+      res.setHeader("Content-Type", "text/plain");
+      res.send(JSON.stringify(information));
+    } else {
+      res.json(information);
+    }
     await sleep(2000);
   } catch (error) {
     console.error(error);
@@ -28,6 +33,7 @@ app.post("/stop", async (_: Request, res: Response) => {
   try {
     res
       .status(200)
+      .setHeader("Content-Type", "text/plain")
       .send("Stopping containers. See from the terminal more information.");
     // Stopping only this exercise containers by filtering these with name
     exec(
@@ -48,9 +54,4 @@ app.post("/stop", async (_: Request, res: Response) => {
     console.log(error);
   }
 });
-
-app.get("/test", (_: Request, res: Response) => {
-  res.send(testMock());
-});
-
 export default app;

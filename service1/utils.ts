@@ -141,12 +141,8 @@ async function getRunningProcesses(): Promise<Object[]> {
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-export function testMock() {
-  return "test";
-}
 
 export default {
   collectServicesInformation,
-  testMock,
   sleep,
 };

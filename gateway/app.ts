@@ -8,15 +8,16 @@ apiApp.use(express.text());
 
 const nginx_url = process.env.NGINX_URL || "http://nginx:3000";
 
-const forwardRequestToNginx = async (req: Request, res: Response, path: string, method: string = "GET") => {
+const forwardRequestToNginx = async (
+  req: Request,
+  res: Response,
+  path: string,
+  method: string = "GET"
+) => {
   try {
-    const authHeader = req.headers.authorization;
-
     const response = await fetch(`${nginx_url}${path}`, {
       method: method,
-      headers: {
-        "Authorization": authHeader || "",
-      },
+      headers: new Headers(req.headers as Record<string, string>),
     });
     response.headers.forEach((value, name) => {
       res.setHeader(name, value);
@@ -25,7 +26,7 @@ const forwardRequestToNginx = async (req: Request, res: Response, path: string, 
     res.status(response.status).send(body);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Failed to send request to Nginx.");
+      res.status(500).send("Failed to send request to Nginx.");
   }
 };
 
@@ -37,36 +38,41 @@ let stateLog: string[] = [];
 const getState = (): State => currentState;
 
 const setState = (newState: State): void => {
-    if (newState !== currentState) {
-      stateLog.push(`${new Date().toISOString()}: ${currentState} -> ${newState}`);
-      currentState = newState;
-    }
+  if (newState !== currentState) {
+    stateLog.push(
+      `${new Date().toISOString()}: ${currentState} -> ${newState}`
+    );
+    currentState = newState;
+  }
 };
 
 const isValidState = (state: State): boolean => {
-    return ["INIT", "PAUSED", "RUNNING", "SHUTDOWN"].includes(state);
-};
-  
-const isValidStateTransition = (from: State, to: State): boolean => {
-    if (from  === "INIT" && ["PAUSED", "SHUTDOWN"].includes(to)) {
-        return false;
-    }
-    return true;
+  return ["INIT", "PAUSED", "RUNNING", "SHUTDOWN"].includes(state);
 };
 
-const checkAuthorization = async (req: Request, res: Response): Promise<boolean> => {
-    try {
-        const authHeader = req.headers.authorization;
-        const response = await fetch(`${nginx_url}`, {
-            headers: {
-                "Authorization": authHeader || "",
-            },
-        });
-        return response.status === 200;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
+const isValidStateTransition = (from: State, to: State): boolean => {
+  if (from === "INIT" && ["PAUSED", "SHUTDOWN"].includes(to)) {
+    return false;
+  }
+  return true;
+};
+
+const checkAuthorization = async (
+  req: Request,
+  res: Response
+): Promise<boolean> => {
+  try {
+    const authHeader = req.headers.authorization;
+    const response = await fetch(`${nginx_url}`, {
+      headers: {
+        Authorization: authHeader || "",
+      },
+    });
+    return response.status === 200;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 };
 
 // App 1 (browser app) routes
@@ -84,43 +90,56 @@ browserApp.post("/stop", (req: Request, res: Response) => {
 
 // App 2 (rest api) routes
 apiApp.get("/state", (req: Request, res: Response) => {
-    res.setHeader("Content-Type", "text/plain");
-    res.send(getState());
+  res.setHeader("Content-Type", "text/plain");
+  res.send(getState());
 });
 
 apiApp.put("/state", async (req: Request, res: Response) => {
-    const newState = req.body as State;
-    res.setHeader("Content-Type", "text/plain");
+  const newState = req.body as State;
+  res.setHeader("Content-Type", "text/plain");
 
-    if (!await checkAuthorization(req, res)) {
-        res.status(401).send(`Unauthorized user cannot change the state. State remains ${getState()}.`);
-        return;
-    }
-    if (!isValidState(newState)) {
-        res.status(400).send("Invalid state.");
-        return;
-    }
-    if (!isValidStateTransition(getState(), newState)) {
-        res.status(400).send("Invalid state transition.");
-        return;
-    }
-    setState(newState);
-    switch (newState) {
-        case "INIT":
-            res.status(200).send("State set to INIT. New login required.");
-            break;
-        case "SHUTDOWN":
-            res.status(200).send("Stopping containers. See from the terminal more information.");
-            await forwardRequestToNginx(req, res, "/api/stop", "POST");
-            break;
-        default:
-            res.send(`State set to ${newState}.`);
-    }
+  if (!(await checkAuthorization(req, res))) {
+    res
+      .status(401)
+      .send(
+        `Unauthorized user cannot change the state. State remains ${getState()}.`
+      );
+    return;
+  }
+  if (!isValidState(newState)) {
+    res.status(400).send("Invalid state.");
+    return;
+  }
+  if (!isValidStateTransition(getState(), newState)) {
+    res.status(400).send("Invalid state transition.");
+    return;
+  }
+  setState(newState);
+  switch (newState) {
+    case "INIT":
+      res.status(200).send("State set to INIT. New login required.");
+      break;
+    case "SHUTDOWN":
+      forwardRequestToNginx(req, res, "/api/stop", "POST");
+      break;
+    default:
+      res.send(`State set to ${newState}.`);
+  }
 });
 
 apiApp.get("/run-log", (_: Request, res: Response) => {
-    res.setHeader("Content-Type", "text/plain");
-    res.send(stateLog.join("\n"));
+  res.setHeader("Content-Type", "text/plain");
+  res.send(stateLog.join("\n"));
+});
+
+apiApp.get("/request", (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/plain");
+  if (currentState !== "RUNNING") {
+    res.status(503).send("Service is not in running state.");
+    return;
+  }
+  req.headers["content-type"] = "text/plain";
+  forwardRequestToNginx(req, res, "/api/request/no-auth");
 });
 
 export { browserApp, apiApp };

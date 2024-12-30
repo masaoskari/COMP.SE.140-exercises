@@ -1,4 +1,8 @@
 import request from "supertest";
+import { exec } from "child_process";
+import util from "util";
+
+const execPromise = util.promisify(exec);
 
 describe("Rest API Tests", () => {
   const baseUrl = "http://localhost:8197";
@@ -211,6 +215,9 @@ describe("Rest API Tests", () => {
     expect(response.headers['content-type']).toMatch(/text\/plain/);
     expect(response.text).toBe("State set to RUNNING.");
 
+    // Sleep 2 seconds to ensure that the service1:s are not busy
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     // Change state to SHUTDOWN from RUNNING
     response = await request(baseUrl)
       .put("/state")
@@ -219,6 +226,32 @@ describe("Rest API Tests", () => {
       .set("Content-Type", "text/plain");
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toMatch(/text\/plain/);
-    expect(response.text).toBe("Stopping containers. See from the terminal more information.");
+    expect(response.text).toBe(
+      "Stopping containers. See from the terminal more information."
+    );
+
+    // Poll the status of the containers until they are stopped
+    const checkContainersStopped = async () => {
+      const { stdout, stderr } = await execPromise(
+        'docker ps --filter "name=compse140-project" -q'
+      );
+      if (stderr) {
+        console.error(`Stderr: ${stderr}`);
+      }
+      return stdout.trim() === "";
+    };
+
+    const maxRetries = 10;
+    const delay = 1000;
+    let retries = 0;
+    while (retries < maxRetries) {
+      if (await checkContainersStopped()) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      retries++;
+    }
+    // Verify that the containers are stopped
+    expect(await checkContainersStopped()).toBe(true);
   });
 });

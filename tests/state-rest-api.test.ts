@@ -48,6 +48,62 @@ describe("Rest API Tests", () => {
     expect(response.text).toMatch(/PAUSED -> RUNNING/);
   });
 
+  it("Should not get response from request endpoint if state is not RUNNING", async () => {
+    // At the beginning, the state is INIT
+    let response = await request(baseUrl).get("/request");
+    expect(response.status).toBe(503);
+    expect(response.headers['content-type']).toMatch(/text\/plain/);
+    expect(response.text).toBe("Service is not in running state.");
+
+    // Change the state to PAUSED
+    await request(baseUrl)
+      .put("/state")
+      .auth("nginx", "nginx")
+      .send("RUNNING")
+      .set("Content-Type", "text/plain");
+
+    await request(baseUrl)
+      .put("/state")
+      .auth("nginx", "nginx")
+      .send("PAUSED")
+      .set("Content-Type", "text/plain");
+
+    response = await request(baseUrl).get("/request");
+    
+    expect(response.status).toBe(503);
+    expect(response.headers['content-type']).toMatch(/text\/plain/);
+    expect(response.text).toBe("Service is not in running state.");
+  });
+
+  it("Should respond with the service information from /request endpoint", async () => {
+    // Change the state to RUNNING
+    await request(baseUrl)
+      .put("/state")
+      .auth("nginx", "nginx")
+      .send("RUNNING")
+      .set("Content-Type", "text/plain");
+
+    const response = await request(baseUrl)
+      .get("/request")
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toMatch(/text\/plain/);
+
+    const responseBody = JSON.parse(response.text);
+
+    expect(responseBody).toHaveProperty("service1");
+    expect(responseBody).toHaveProperty("service2");
+    expect(responseBody.service1).toHaveProperty("diskSpace");
+    expect(responseBody.service1).toHaveProperty("ipAddresses");
+    expect(responseBody.service1).toHaveProperty("osUptime");
+    expect(responseBody.service1).toHaveProperty("processes");
+    expect(responseBody.service1).toHaveProperty("serviceUptime");
+    expect(responseBody.service2).toHaveProperty("diskSpace");
+    expect(responseBody.service2).toHaveProperty("ipAddresses");
+    expect(responseBody.service2).toHaveProperty("osUptime");
+    expect(responseBody.service2).toHaveProperty("processes");
+    expect(responseBody.service2).toHaveProperty("serviceUptime");
+  });
+
   it("Should change the state of the system", async () => {
     // Check that unauthorized users cannot change the state
     let response = await request(baseUrl)

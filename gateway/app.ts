@@ -32,11 +32,13 @@ const forwardRequestToNginx = async (req: Request, res: Response, path: string, 
 type State = "INIT" | "PAUSED" | "RUNNING" | "SHUTDOWN";
 
 let currentState: State = "INIT";
+let stateLog: string[] = [];
 
 const getState = (): State => currentState;
 
 const setState = (newState: State): void => {
     if (newState !== currentState) {
+      stateLog.push(`${new Date().toISOString()}: ${currentState} -> ${newState}`);
       currentState = newState;
     }
 };
@@ -116,5 +118,9 @@ apiApp.put("/state", async (req: Request, res: Response) => {
     }
 });
 
+apiApp.get("/run-log", (_: Request, res: Response) => {
+    res.setHeader("Content-Type", "text/plain");
+    res.send(stateLog.join("\n"));
+});
 
 export { browserApp, apiApp };

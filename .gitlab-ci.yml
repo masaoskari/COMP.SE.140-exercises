@@ -1,5 +1,13 @@
 stages:
+  - lint
   - test
+
+eslint:
+  image: node:21-alpine
+  stage: lint
+  script:
+    - npm ci
+    - npx eslint
 
 browser-endpoint-test:
   image: docker:latest

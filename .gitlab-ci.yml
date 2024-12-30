@@ -5,6 +5,8 @@ stages:
 eslint:
   image: node:21-alpine
   stage: lint
+  tags:
+    - docker-runner
   script:
     - npm ci
     - npx eslint

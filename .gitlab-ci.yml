@@ -10,7 +10,7 @@ pylint:
   image: python:3.12-alpine
   stage: lint
   script:
-    - cd service1
+    - cd service2
     - python -m venv venv
     - source venv/bin/activate
     - pip install -r requirements.txt

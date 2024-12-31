@@ -91,7 +91,7 @@ function getIpAddressInformation() {
  *
  * @returns {Promise<Object>} Disk usage information
  */
-async function getAvailableDiscSpace(): Promise<Object> {
+async function getAvailableDiscSpace(): Promise<object> {
   const { stdout } = await execPromise("df -h /");
 
   const lines = stdout.trim().split("\n");
@@ -116,9 +116,8 @@ async function getAvailableDiscSpace(): Promise<Object> {
  *
  * @returns {Promise<Object[]>} List of running processes
  */
-async function getRunningProcesses(): Promise<Object[]> {
+async function getRunningProcesses(): Promise<object[]> {
   const { stdout } = await execPromise("ps -ax");
-
   const lines = stdout.trim().split("\n");
 
   // Process data to json object

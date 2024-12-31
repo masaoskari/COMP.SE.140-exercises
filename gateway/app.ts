@@ -26,14 +26,14 @@ const forwardRequestToNginx = async (
     res.status(response.status).send(body);
   } catch (error) {
     console.error(error);
-      res.status(500).send("Failed to send request to Nginx.");
+    res.status(500).send("Failed to send request to Nginx.");
   }
 };
 
 type State = "INIT" | "PAUSED" | "RUNNING" | "SHUTDOWN";
 
 let currentState: State = "INIT";
-let stateLog: string[] = [];
+const stateLog: string[] = [];
 
 const getState = (): State => currentState;
 
@@ -57,10 +57,7 @@ const isValidStateTransition = (from: State, to: State): boolean => {
   return true;
 };
 
-const checkAuthorization = async (
-  req: Request,
-  res: Response
-): Promise<boolean> => {
+const checkAuthorization = async (req: Request): Promise<boolean> => {
   try {
     const authHeader = req.headers.authorization;
     const response = await fetch(`${nginx_url}`, {
@@ -98,7 +95,7 @@ apiApp.put("/state", async (req: Request, res: Response) => {
   const newState = req.body as State;
   res.setHeader("Content-Type", "text/plain");
 
-  if (!(await checkAuthorization(req, res))) {
+  if (!(await checkAuthorization(req))) {
     res
       .status(401)
       .send(

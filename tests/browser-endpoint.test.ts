@@ -32,11 +32,11 @@ describe("Browser Integration Tests", () => {
     const service2Url = process.env.SERVICE2_URL || "http://service2:5000";
 
     try {
-      const response = await request(service2Url).get("/");
+      await request(service2Url).get("/");
     } catch (error) {
       if (error && typeof error === "object" && "code" in error) {
         expect(error).toBeDefined();
-        expect((error as any).code).toBe("ENOTFOUND");
+        expect(error.code).toBe("ENOTFOUND");
       } else {
         throw new Error("Unexpected error type");
       }

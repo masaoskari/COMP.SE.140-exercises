@@ -2,11 +2,24 @@ stages:
   - lint
   - test
 
+default:
+  tags:
+    - docker-runner
+
+pylint:
+  image: python:3.12-alpine
+  stage: lint
+  script:
+    - cd service1
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+    - pip install pylint==3.3.3
+    - pylint *.py
+
 eslint:
   image: node:21-alpine
   stage: lint
-  tags:
-    - docker-runner
   script:
     - npm install @eslint/js@9.17.0 eslint@9.17.0 globals@15.14.0 typescript-eslint@8.18.2
     - npx eslint

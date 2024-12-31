@@ -7,7 +7,7 @@ default:
     - docker-runner
 
 pylint:
-  image: python:3.12-alpine
+  image: python:3.12-bullseye
   stage: lint
   script:
     - cd service2

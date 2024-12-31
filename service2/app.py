@@ -1,9 +1,11 @@
-from flask import Flask, jsonify
+"""Flask application for Service 2."""
 import socket
-import psutil
 import time
 import os
 import logging
+import psutil
+from flask import Flask, jsonify
+
 
 # Set up app and logging
 logging.basicConfig(level=logging.INFO)
@@ -22,8 +24,9 @@ def service_info():
     try:
         info = collect_service_info()
         return jsonify(info)
-    except Exception as e:
-        app.logger.error(f"An error occurred: {str(e)}")
+
+    except Exception as e: # pylint: disable=broad-except
+        app.logger.error("An error occurred: %s", e)
         return jsonify({"error": "Failed to collect service 2 information."}), 500
 
 #
@@ -36,7 +39,6 @@ def collect_service_info() -> dict:
     processes = get_running_processes()
     disk_usage = get_disk_space()
     uptime = time.time() - app_start_time
-    
     info = {
         "ipAddresses": addresses,
         "diskSpace": disk_usage,

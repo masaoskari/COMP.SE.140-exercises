@@ -8,7 +8,7 @@ eslint:
   tags:
     - docker-runner
   script:
-    - npm ci
+    - npm install eslint@9.17.0
     - npx eslint
 
 browser-endpoint-test:

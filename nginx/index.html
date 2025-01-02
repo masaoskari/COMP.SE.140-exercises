@@ -55,10 +55,10 @@
           signal: AbortSignal.timeout(2000),
           ...options,
         });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
         const data = await response.text();
+        if (!response.ok) {
+          throw new Error(`Error! status: ${response.status} message: ${data || ""}`);
+        }
         responseArea.value = data;
       } catch (error) {
         // Ignore timeout errors but show other errors. We just don't want to wait

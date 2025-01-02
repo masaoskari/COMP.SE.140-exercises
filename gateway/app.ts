@@ -24,6 +24,11 @@ const forwardRequestToNginx = async (
     });
     const body = await response.text();
     res.status(response.status).send(body);
+    // In successful login, set the state to RUNNING
+    if (path === "/" && getState() === "INIT" && response.status === 200) {
+      console.log("Successfully logged in. Setting state to RUNNING.");
+      setState("RUNNING");
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Failed to send request to Nginx.");
@@ -73,11 +78,15 @@ const checkAuthorization = async (req: Request): Promise<boolean> => {
 };
 
 // App 1 (browser app) routes
-browserApp.get("/", (req: Request, res: Response) => {
-  forwardRequestToNginx(req, res, "/");
+browserApp.get("/", async (req: Request, res: Response) => {
+  await forwardRequestToNginx(req, res, "/");
 });
 
 browserApp.get("/request", (req: Request, res: Response) => {
+  if (currentState !== "RUNNING") {
+    res.status(503).send("Service is not in running state.");
+    return;
+  }
   forwardRequestToNginx(req, res, "/api/request");
 });
 

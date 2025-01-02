@@ -6,10 +6,26 @@ const execPromise = util.promisify(exec);
 
 describe("Browser Integration Tests", () => {
   const baseUrl = "http://localhost:8198";
+  const restApiUrl = "http://localhost:8197";
 
   it("should return 401 for unauthorized access", async () => {
     const response = await request(baseUrl).get("/");
     expect(response.status).toBe(401);
+  });
+
+  it("Should not be able to fetch data from api if app is not running state", async () => {
+    const response = await request(baseUrl).get("/request").auth("nginx", "nginx");
+    expect(response.status).toBe(503);
+    expect(response.text).toBe("Service is not in running state.");
+  });
+
+  it("Should set app state to RUNNING when successfully login", async () => {
+    const response = await request(baseUrl).get("/").auth("nginx", "nginx");
+    expect(response.status).toBe(200);
+
+    const stateResponse = await request(restApiUrl).get("/state");
+    expect(stateResponse.status).toBe(200);
+    expect(stateResponse.text).toBe("RUNNING");
   });
 
   it("should return service information from /api", async () => {
@@ -28,6 +44,7 @@ describe("Browser Integration Tests", () => {
     expect(response.body.service2).toHaveProperty("processes");
     expect(response.body.service2).toHaveProperty("serviceUptime");
   });
+
   it("should not fetch data from SERVICE2_URL", async () => {
     const service2Url = process.env.SERVICE2_URL || "http://service2:5000";
 
@@ -42,6 +59,7 @@ describe("Browser Integration Tests", () => {
       }
     }
   });
+
   it("should stop the service from /api/stop", async () => {
     const response = await request(baseUrl)
       .post("/stop")

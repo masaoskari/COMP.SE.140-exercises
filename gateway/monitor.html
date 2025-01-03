@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service Monitoring</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+      }
+      h1 {
+        text-align: center;
+      }
+      .info {
+        margin: 10px 0;
+      }
+      .error {
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Service Monitoring</h1>
+      <div class="info">
+        <strong>Start Time (ISO format):</strong> <span id="startTime"></span>
+      </div>
+      <div class="info">
+        <strong>Request Count:</strong> <span id="requestCount"></span>
+      </div>
+      <div class="info error" id="errorMessage" style="display: none;">
+        The monitoring server might be down. Please try again later.
+      </div>
+    </div>
+    <script>
+      let failureCount = 0;
+      const maxFailures = 10;
+      let intervalId;
+
+      async function fetchMonitoringData() {
+        try {
+          const response = await fetch('/info');
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          document.getElementById('startTime').innerText = data.startTime;
+          document.getElementById('requestCount').innerText = data.requestCount;
+          document.getElementById('errorMessage').style.display = 'none';
+          failureCount = 0;
+        } catch (error) {
+          console.error('Error fetching monitoring data:', error);
+          document.getElementById('errorMessage').innerText = `Error fetching monitoring data with error: ${error.message}. Server might be down.`;
+          document.getElementById('errorMessage').style.display = 'block';
+          failureCount++;
+          if (failureCount >= maxFailures) {
+            clearInterval(intervalId);
+            document.getElementById('errorMessage').innerText = 'Polling stopped after 10 failures. The monitoring server might be down. Try again later.';
+          }
+        }
+      }
+
+      // Fetch monitoring data every 2 seconds
+      intervalId = setInterval(fetchMonitoringData, 2000);
+
+      // Initial fetch
+      fetchMonitoringData();
+    </script>
+  </body>
+</html>

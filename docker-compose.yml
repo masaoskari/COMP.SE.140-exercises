@@ -30,6 +30,7 @@ services:
     ports:
       - "8198:8198"
       - "8197:8197"
+      - "8098:8098"
     environment:
       - NGINX_URL=http://nginx:3000
     networks:

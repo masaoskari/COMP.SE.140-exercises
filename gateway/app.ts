@@ -1,12 +1,25 @@
-import express, { Request, Response, Application } from "express";
+import express, { Request, Response, Application, NextFunction } from "express";
+import path from "path";
 
 const browserApp: Application = express();
 const apiApp: Application = express();
+const monitorApp: Application = express();
 
 browserApp.use(express.text());
 apiApp.use(express.text());
 
 const nginx_url = process.env.NGINX_URL || "http://nginx:3000";
+
+const startTime = new Date();
+let requestCount = 0;
+
+const countRequestsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  requestCount++;
+  next();
+};
+
+browserApp.use(countRequestsMiddleware);
+apiApp.use(countRequestsMiddleware);
 
 const forwardRequestToNginx = async (
   req: Request,
@@ -153,4 +166,16 @@ apiApp.get("/request", (req: Request, res: Response) => {
   forwardRequestToNginx(req, res, "/api/request/no-auth");
 });
 
-export { browserApp, apiApp };
+// App 3 (monitoring app) routes
+monitorApp.get("/", (_: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, "monitor.html"));
+});
+
+monitorApp.get("/info", (_: Request, res: Response) => {
+  res.json({
+    startTime: startTime.toISOString(),
+    requestCount,
+  });
+});
+
+export { browserApp, apiApp, monitorApp };

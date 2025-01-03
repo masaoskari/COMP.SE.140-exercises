@@ -19,6 +19,12 @@ describe("Browser Integration Tests", () => {
     expect(response.text).toBe("Service is not in running state.");
   });
 
+  it("Should not be able to stop the service if app is not running state", async () => {
+    const response = await request(baseUrl).post("/stop").auth("nginx", "nginx");
+    expect(response.status).toBe(503);
+    expect(response.text).toBe("Service can be stopped only when it is in running or paused state.");
+  });
+
   it("Should set app state to RUNNING when successfully login", async () => {
     const response = await request(baseUrl).get("/").auth("nginx", "nginx");
     expect(response.status).toBe(200);

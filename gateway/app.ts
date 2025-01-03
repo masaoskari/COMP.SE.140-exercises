@@ -91,7 +91,12 @@ browserApp.get("/request", (req: Request, res: Response) => {
 });
 
 browserApp.post("/stop", (req: Request, res: Response) => {
+  if (currentState !== "RUNNING" && currentState !== "PAUSED") {
+    res.status(503).send("Service can be stopped only when it is in running or paused state.");
+    return;
+  }
   forwardRequestToNginx(req, res, "/api/stop", "POST");
+  
 });
 
 // App 2 (rest api) routes

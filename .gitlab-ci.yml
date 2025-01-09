@@ -105,10 +105,9 @@ deploy:
     - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
-    - sed -i "s/:{$CI_COMMIT_SHA}/:latest/g" docker-compose-prod.yml
-    - cat docker-compose-prod.yml
 
   script:
+    - sed -i "s/\${CI_COMMIT_SHA}/latest/g" docker-compose-prod.yml
     - ssh $SERVER_USER@$SERVER_HOST "echo \"$CI_JOB_TOKEN\" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin"
     - scp docker-compose-prod.yml $SERVER_USER@$SERVER_HOST:docker-compose-prod.yml
     - scp docker-compose.yml $SERVER_USER@$SERVER_HOST:docker-compose.yml

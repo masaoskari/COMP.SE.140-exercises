@@ -1,5 +1,6 @@
 stages:
   - lint
+  - build
   - test
 
 default:
@@ -24,6 +25,22 @@ eslint:
     - npm install @eslint/js@9.17.0 eslint@9.17.0 globals@15.14.0 typescript-eslint@8.18.2
     - npx eslint
 
+build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - docker compose -f docker-compose.yml build
+    - for service in service1 service2 nginx gateway; do
+      docker tag compse140-project-$service $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA;
+      docker push $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA;
+      done
+
 browser-endpoint-test:
   image: docker:latest
   stage: test
@@ -35,10 +52,13 @@ browser-endpoint-test:
   tags:
     - docker-runner
   script:
-    - docker-compose -f docker-compose.yml up -d --build
+    - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - for service in service1 service2 nginx gateway; do docker pull $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA; done
+    - docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d --build
     - export TEST_COMMAND="npm run test:browser" && docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
   after_script:
-    - docker-compose -f docker-compose.yml -f docker-compose-test.yml down
+    - docker compose -f docker-compose.yml -f docker-compose-prod.yml down
+    - docker compose -f docker-compose-test.yml down
 
 state-api-test:
   image: docker:latest
@@ -51,8 +71,10 @@ state-api-test:
   tags:
     - docker-runner
   script:
-    - docker-compose -f docker-compose.yml up -d --build
+    - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - for service in service1 service2 nginx gateway; do docker pull $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA; done
+    - docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d --build
     - export TEST_COMMAND="npm run test:state-api" && docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
   after_script:
-    - docker-compose -f docker-compose.yml -f docker-compose-test.yml down
-
+    - docker compose -f docker-compose.yml -f docker-compose-prod.yml down
+    - docker compose -f docker-compose-test.yml down

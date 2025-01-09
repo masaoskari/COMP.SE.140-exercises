@@ -1,20 +1,20 @@
 services:
   service1:
-    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/service1:latest
+    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/service1:${CI_COMMIT_SHA}
     build: !reset null
     restart: always
 
   service2:
-    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/service2:latest
+    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/service2:${CI_COMMIT_SHA}
     build: !reset null
     restart: always
 
   nginx:
-    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/nginx:latest
+    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/nginx:${CI_COMMIT_SHA}
     build: !reset null
     restart: always
 
   gateway:
-    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/gateway:latest
+    image: compse140.devops-gitlab.rd.tuni.fi:5050/ckmali/comp.se.140-project/gateway:${CI_COMMIT_SHA}
     build: !reset null
     restart: always

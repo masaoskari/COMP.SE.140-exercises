@@ -2,6 +2,7 @@ stages:
   - lint
   - build
   - test
+  - release
 
 default:
   tags:
@@ -53,7 +54,6 @@ browser-endpoint-test:
     - docker-runner
   script:
     - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
-    - for service in service1 service2 nginx gateway; do docker pull $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA; done
     - docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d --build
     - export TEST_COMMAND="npm run test:browser" && docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
   after_script:
@@ -72,9 +72,25 @@ state-api-test:
     - docker-runner
   script:
     - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
-    - for service in service1 service2 nginx gateway; do docker pull $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA; done
     - docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d --build
     - export TEST_COMMAND="npm run test:state-api" && docker-compose -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from test-container
   after_script:
     - docker compose -f docker-compose.yml -f docker-compose-prod.yml down
     - docker compose -f docker-compose-test.yml down
+
+# The release images job push (release) images to the GitLab registry after the tests have passed.
+release-images:
+  image: docker:latest
+  stage: release
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - for service in service1 service2 nginx gateway; do
+      docker pull $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA;
+      docker tag $CI_REGISTRY_IMAGE/$service:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE/$service:latest;
+      docker push $CI_REGISTRY_IMAGE/$service:latest;
+      done

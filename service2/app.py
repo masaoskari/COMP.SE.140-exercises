@@ -13,10 +13,6 @@ app = Flask(__name__)
 
 app_start_time = time.time()
 
-@app.route("/")
-def is_alive():
-    """Check if the service is alive (only for testing purposes in development)."""
-    return "Service 2 alive!"
 
 @app.route("/info")
 def service_info():

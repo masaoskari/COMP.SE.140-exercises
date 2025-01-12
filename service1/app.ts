@@ -1,6 +1,7 @@
 import express, { Request, Response, Application } from "express";
 import { exec } from "child_process";
-import { collectServicesInformation, sleep } from "./utils";
+import { getRunningProcesses, getAvailableDiscSpace, getIpAddressInformation, sleep } from "./utils";
+import os from "os";
 
 const app: Application = express();
 const service2_url = process.env.SERVICE2_URL || "http://localhost:5000";
@@ -55,3 +56,36 @@ app.post("/stop", async (_: Request, res: Response) => {
   }
 });
 export default app;
+
+
+/**
+ * Collect information from both service1 and service2.
+ *
+ * @returns {Promise<Object>} An object containing information from both services.
+ * @throws {Error} If fetching service2 information fails.
+ */
+async function collectServicesInformation(service2_url: string) {
+  const response = await fetch(service2_url + "/info");
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch service 2 information, status ${response.status}.`
+    );
+  }
+  const service2Info = await response.json();
+  const processes = await getRunningProcesses();
+  const diskSpace = await getAvailableDiscSpace();
+  const ipAddresses = getIpAddressInformation();
+
+  const information = {
+    service1: {
+      ipAddresses,
+      diskSpace,
+      processes,
+      serviceUptime: process.uptime(),
+      osUptime: os.uptime(),
+    },
+    service2: service2Info,
+  };
+
+  return information;
+}

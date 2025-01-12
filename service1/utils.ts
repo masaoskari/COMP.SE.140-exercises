@@ -14,39 +14,6 @@ process.on("SIGTERM", async () => {
 });
 
 /**
- * Collect information from both service1 and service2.
- *
- * @returns {Promise<Object>} An object containing information from both services.
- * @throws {Error} If fetching service2 information fails.
- */
-export async function collectServicesInformation(service2_url: string) {
-  const response = await fetch(service2_url + "/info");
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch service 2 information, status ${response.status}.`
-    );
-  }
-
-  const service2Info = await response.json();
-  const processes = await getRunningProcesses();
-  const diskSpace = await getAvailableDiscSpace();
-  const ipAddresses = getIpAddressInformation();
-
-  const information = {
-    service1: {
-      ipAddresses,
-      diskSpace,
-      processes,
-      serviceUptime: process.uptime(),
-      osUptime: os.uptime(),
-    },
-    service2: service2Info,
-  };
-
-  return information;
-}
-
-/**
  * Promisify exec function to use async/await.
  *
  * @type {Function}
@@ -58,7 +25,7 @@ const execPromise = util.promisify(exec);
  *
  * @returns {Object} An object containing network interface names as keys and arrays of IP addresses as values.
  */
-function getIpAddressInformation() {
+export function getIpAddressInformation() {
   // Implementation is based on https://stackoverflow.com/questions/3653065/get-local-ip-address-in-node-js
   const nets = os.networkInterfaces();
   const addresses = Object.create({});
@@ -91,7 +58,7 @@ function getIpAddressInformation() {
  *
  * @returns {Promise<Object>} Disk usage information
  */
-async function getAvailableDiscSpace(): Promise<object> {
+export async function getAvailableDiscSpace(): Promise<object> {
   const { stdout } = await execPromise("df -h /");
 
   const lines = stdout.trim().split("\n");
@@ -116,7 +83,7 @@ async function getAvailableDiscSpace(): Promise<object> {
  *
  * @returns {Promise<Object[]>} List of running processes
  */
-async function getRunningProcesses(): Promise<object[]> {
+export async function getRunningProcesses(): Promise<object[]> {
   const { stdout } = await execPromise("ps -ax");
   const lines = stdout.trim().split("\n");
 
@@ -140,8 +107,3 @@ async function getRunningProcesses(): Promise<object[]> {
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-export default {
-  collectServicesInformation,
-  sleep,
-};

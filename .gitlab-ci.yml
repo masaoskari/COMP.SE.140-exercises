@@ -33,7 +33,7 @@ jest-test:
   stage: unit-test
   script:
     - cd service1
-    - npm install
+    - npm ci
     - npm run test
 
 pytest:
@@ -46,15 +46,14 @@ pytest:
     - pip install -r requirements.txt
     - pytest
 
-# TODO: freeze docker and docker:dind versions
 build:
-  image: docker:latest
+  image: docker:27.4.1
   stage: build
   services:
-    - docker:dind
+    - docker:27.4.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: "" # Disables TLS verification
   script:
     - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker compose -f docker-compose.yml build
@@ -64,10 +63,10 @@ build:
       done
 
 browser-endpoint-test:
-  image: docker:latest
+  image: docker:27.4.1
   stage: e2e-test
   services:
-    - docker:dind
+    - docker:27.4.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
@@ -82,10 +81,10 @@ browser-endpoint-test:
     - docker compose -f docker-compose-test.yml down
 
 state-api-test:
-  image: docker:latest
+  image: docker:27.4.1
   stage: e2e-test
   services:
-    - docker:dind
+    - docker:27.4.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
@@ -101,10 +100,10 @@ state-api-test:
 
 # The release images job push (release) images to the GitLab registry after the tests have passed.
 release-images:
-  image: docker:latest
+  image: docker:27.4.1
   stage: release
   services:
-    - docker:dind
+    - docker:27.4.1-dind
   variables:
     DOCKER_HOST: tcp://docker:2375/
     DOCKER_TLS_CERTDIR: ""
@@ -120,6 +119,7 @@ deploy:
   image: alpine:latest
   stage: deploy
   before_script:
+    # Install ssh client and configure ssh key
     - apk update && apk add openssh-client
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
@@ -127,10 +127,13 @@ deploy:
     - ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
 
   script:
+    # Update the docker-compose-prod.yml file with the latest image tag
     - sed -i "s/\${CI_COMMIT_SHA}/latest/g" docker-compose-prod.yml
     - ssh $SERVER_USER@$SERVER_HOST "echo \"$CI_JOB_TOKEN\" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin"
+    # Move docker compose files to the server
     - scp docker-compose-prod.yml $SERVER_USER@$SERVER_HOST:docker-compose-prod.yml
     - scp docker-compose.yml $SERVER_USER@$SERVER_HOST:docker-compose.yml
+    # Close the running containers, remove unused images, and start the new containers
     - ssh $SERVER_USER@$SERVER_HOST "docker compose -f docker-compose.yml -f docker-compose-prod.yml down"
     - ssh $SERVER_USER@$SERVER_HOST "docker image prune -af"
     - ssh $SERVER_USER@$SERVER_HOST "docker compose -f docker-compose.yml -f docker-compose-prod.yml up -d"

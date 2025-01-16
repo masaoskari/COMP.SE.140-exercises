@@ -29,12 +29,16 @@ def test_get_service_info(client, monkeypatch):
     def mock_popen(command):
         """Mock the os.popen function to get test work with different os."""
         if "df -h /" in command:
-            return MockPopen("Filesystem Size Used Avail Use% Mounted on\n"
-                             "/dev/sda1 100G 50G 50G 50% /\n")
+            return MockPopen(
+                "Filesystem Size Used Avail Use% Mounted on\n"
+                "/dev/sda1 100G 50G 50G 50% /\n"
+            )
         if "ps -ax" in command:
-            return MockPopen("  PID TTY          TIME CMD\n    1 ?        00:00:00 init\n")
+            return MockPopen(
+                "  PID TTY          TIME CMD\n"
+                "    1 ?        00:00:00 init\n"
+            )
         return MockPopen("")
-
     monkeypatch.setattr("os.popen", mock_popen)
     response = client.get("/info")
     assert response.status_code == 200

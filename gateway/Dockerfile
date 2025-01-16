@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY package*.json .
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-RUN npm ci
+RUN npm run build
 
 EXPOSE 8198 8197 8098
 

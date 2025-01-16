@@ -12,11 +12,11 @@ WORKDIR /app
 # we change the source code but not the required packages.
 COPY package*.json .
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-RUN npm ci
+RUN npm run build
 
 EXPOSE 8081
 

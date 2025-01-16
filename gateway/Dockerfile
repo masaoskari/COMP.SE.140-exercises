@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run ci
+RUN npm ci
 
 EXPOSE 8198 8197 8098
 

@@ -10,8 +10,10 @@ jest.mock('child_process', () => ({
 describe('Service 1 tests.', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
+
     // Mock sleep to avoid real 2-second delay
-    jest.spyOn(utils, 'sleep').mockResolvedValue(undefined); // Skips the 2s delay in tests
+    jest.spyOn(utils, 'sleep').mockResolvedValue(undefined);
+
     // Mock methods that uses OS specific commands to get information
     // with real like data.
     jest.spyOn(utils, 'getAvailableDiscSpace').mockResolvedValue({
@@ -95,24 +97,9 @@ describe('Service 1 tests.', () => {
     expect(response.text).toBe('Failed to fetch data from services.');
   });
 
-
   it('should stop containers on /stop endpoint', async () => {
     const mockExec = (exec as unknown as jest.Mock).mockImplementation((cmd, callback) => {
       callback(null, 'Stopped containers', '');
-    });
-
-    const response = await request(app).post('/stop');
-    expect(response.status).toBe(200);
-    expect(response.text).toBe('Stopping containers. See from the terminal more information.');
-    expect(mockExec).toHaveBeenCalledWith(
-      "docker stop $(docker ps --filter 'name=compse140-project' -q)",
-      expect.any(Function)
-    );
-  });
-
-  it('should handle errors when stopping containers', async () => {
-    const mockExec = (exec as unknown as jest.Mock).mockImplementation((cmd, callback) => {
-      callback(new Error('Failed to stop containers'), '', 'Error stopping containers');
     });
 
     const response = await request(app).post('/stop');

@@ -3,8 +3,6 @@ services:
   test-container:
     build: ./tests
     network_mode: host
-    environment:
-      - TEST_COMMAND="npm run test:browser"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     entrypoint: ["/bin/sh", "-c"]

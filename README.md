@@ -1,6 +1,6 @@
 # COMP.SE.140-exercises
 
-Repository for COMP.SE.140 Continuous Development and Deployment - DevOps -course exercises
+Repository for COMP.SE.140 Continuous Development and Deployment - DevOps -course exercises and project.
 
 ## Exercise 1
 
@@ -37,3 +37,7 @@ point browser at localhost:8198
 
 docker-compose down
 ```
+
+## Project
+
+Branch `project` contains project submission. More details about the project and instructions how to test it can be found from [End Report](docs/EndReport.md).

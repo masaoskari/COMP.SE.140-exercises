@@ -7,4 +7,6 @@ services:
     # for example to see the running containers.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    # Allow to run shell commands in the command section
+    entrypoint: ["/bin/sh", "-c"]
     command: ["${TEST_COMMAND}"]

@@ -43,7 +43,7 @@ State rest api is available from `86.50.228.123:8197`. Following end points can 
 Only the state changes needs authentication to actually change the state but other endpoints works without it. There should be descriptive error messages if some operation fails due to authorization.
 
 #### Monitoring service
-Monitoring page is available from `86.50.228.123:8098` there you can see the application start time in ISO format and number of requests to applicaiton. `!NOTE`: If you access to browser application depending on your browser the browser is actually making more than one request when you are asking HTML page. Authentication to monitoring service is not needed because there was no requirement for that. Monitoring page is polling new available data from backend every 2 seconds.
+Monitoring page is available from `86.50.228.123:8098` there you can see the application start time in Finland's time zone (Europe/Helsinki) and number of requests to application. Requests to monitoring service are not counted into number of requests (that could be easily added with the ready middleware but there were no requirement for that). `!NOTE`: If you access to browser application depending on your browser the browser is actually making more than one request when you are asking HTML page. Authentication to monitoring service is not needed because there was no requirement for that. Monitoring page is polling new available data from backend every 2 seconds.
 
 ### Local testing
 
@@ -174,7 +174,7 @@ Deployment step uses `scp` to move correct Docker Compose files to VM and `ssh` 
 ### Operating & Monitoring
 Applications monitoring is implemented to be `gateway` component's feature. That implementation is done staight to that component but could be easily moved to another microservice so that the traffic still goes through the gateway.
 
-Monitoring page is available from address and port `86.50.228.123:8098` or if the application is deployed locally from `localhost:8098`. Monitoring service is showing the applications start time in ISO format and request count. 
+Monitoring page is available from address and port `86.50.228.123:8098` or if the application is deployed locally from `localhost:8098`. Monitoring service is showing the applications start time and request count. 
 
 ## Example runs of the pipeline
 Development was made in test-driven manner and when the applications features were under development the pipeline contained only test phase. From Figure 2 the pipeline runs in the application development can be seen. In the log we can see for example that the test driven development method revealed bug in the pipeline configuration because when the new test was made it didn't fail even if there was no actual development for that feature. That can be seen from the log where the commit is `ensure that tests fail`.

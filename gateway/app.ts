@@ -120,7 +120,9 @@ monitorApp.get("/", (_: Request, res: Response) => {
 
 monitorApp.get("/info", (_: Request, res: Response) => {
   res.json({
-    startTime: startTime.toISOString(),
+    startTime: startTime.toLocaleString("en-GB", {
+      timeZone: "Europe/Helsinki",
+    }),
     requestCount,
   });
 });
@@ -147,7 +149,9 @@ const getState = (): State => currentState;
 const setState = (newState: State): void => {
   if (newState !== currentState) {
     stateLog.push(
-      `${new Date().toISOString()}: ${currentState} -> ${newState}`
+      `${new Date().toLocaleString("en-GB", {
+        timeZone: "Europe/Helsinki",
+      })}: ${currentState} -> ${newState}`
     );
     currentState = newState;
   }

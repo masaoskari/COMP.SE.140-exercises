@@ -149,9 +149,7 @@ const getState = (): State => currentState;
 const setState = (newState: State): void => {
   if (newState !== currentState) {
     stateLog.push(
-      `${new Date().toLocaleString("en-GB", {
-        timeZone: "Europe/Helsinki",
-      })}: ${currentState} -> ${newState}`
+      `${new Date().toISOString()}: ${currentState} -> ${newState}`
     );
     currentState = newState;
   }

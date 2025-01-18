@@ -43,7 +43,7 @@ describe("Browser Integration Tests", () => {
   it("Should not be able to fetch data from api if app is not running state", async () => {
     const response = await request(browserAppUrl).get("/request").auth("nginx", "nginx");
     expect(response.status).toBe(503);
-    expect(response.text).toBe("Service is not in running state.");
+    expect(response.text).toBe("Service is not in running state. Login required.");
   });
 
   it("Should not be able to stop the service if app is not running state", async () => {

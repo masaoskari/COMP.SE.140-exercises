@@ -57,7 +57,7 @@ describe("Rest API Tests", () => {
     let response = await request(baseUrl).get("/request");
     expect(response.status).toBe(503);
     expect(response.headers['content-type']).toMatch(/text\/plain/);
-    expect(response.text).toBe("Service is not in running state.");
+    expect(response.text).toBe("Service is not in running state. Change the state to RUNNING and try again.");
 
     // Change the state to PAUSED
     await request(baseUrl)
@@ -76,7 +76,7 @@ describe("Rest API Tests", () => {
     
     expect(response.status).toBe(503);
     expect(response.headers['content-type']).toMatch(/text\/plain/);
-    expect(response.text).toBe("Service is not in running state.");
+    expect(response.text).toBe("Service is not in running state. Change the state to RUNNING and try again.");
   });
 
   it("Should respond with the service information from /request endpoint", async () => {

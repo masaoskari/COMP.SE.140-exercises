@@ -3,7 +3,8 @@ services:
   test-container:
     build: ./tests
     network_mode: host
+    # Some tests require access to the Docker daemon on the host machine
+    # for example to see the running containers.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    entrypoint: ["/bin/sh", "-c"]
     command: ["${TEST_COMMAND}"]

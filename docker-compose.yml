@@ -9,6 +9,8 @@ services:
     environment:
       - PORT=8081
       - SERVICE2_URL=http://service2:5000
+    # This volume is used to communicate with the Docker daemon on the host machine
+    # to shutdown the containers from /stop endpoint.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:

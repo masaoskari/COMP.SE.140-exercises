@@ -37,7 +37,7 @@ browserApp.get("/", async (req: Request, res: Response) => {
 
 browserApp.get("/request", (req: Request, res: Response) => {
   if (currentState !== "RUNNING") {
-    res.status(503).send("Service is not in running state. Login required.");
+    res.status(503).send("Service is not in running state.");
     return;
   }
   forwardRequestToNginx(req, res, "/api/request");

@@ -51,9 +51,11 @@ build:
   stage: build
   services:
     - docker:27.4.1-dind
+  # This configures DinD to use TLS. The runner should be configured to support this.
+  # See more details: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#use-docker-in-docker
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: "" # Disables TLS verification
+    DOCKER_TLS_CERTDIR: "/certs"
+
   script:
     - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker compose -f docker-compose.yml build
@@ -68,8 +70,7 @@ browser-endpoint-test:
   services:
     - docker:27.4.1-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: "/certs"
   tags:
     - docker-runner
   script:
@@ -86,8 +87,7 @@ state-api-test:
   services:
     - docker:27.4.1-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: "/certs"
   tags:
     - docker-runner
   script:
@@ -105,8 +105,7 @@ release-images:
   services:
     - docker:27.4.1-dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: "/certs"
   script:
     - echo "$CI_JOB_TOKEN" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - for service in service1 service2 nginx gateway; do

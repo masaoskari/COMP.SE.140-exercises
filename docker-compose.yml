@@ -27,6 +27,7 @@ services:
       - service1
     networks:
       - app-network
+      
   gateway:
     build: ./gateway
     ports:

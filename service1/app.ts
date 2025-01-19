@@ -1,6 +1,11 @@
 import express, { Request, Response, Application } from "express";
 import { exec } from "child_process";
-import { getRunningProcesses, getAvailableDiscSpace, getIpAddressInformation, sleep } from "./utils";
+import {
+  getRunningProcesses,
+  getAvailableDiscSpace,
+  getIpAddressInformation,
+  sleep,
+} from "./utils";
 import os from "os";
 
 const app: Application = express();
@@ -16,7 +21,7 @@ app.get("/", async (req: Request, res: Response) => {
     const information = await collectServicesInformation(service2_url);
     if (req.headers["content-type"] === "text/plain") {
       res.setHeader("Content-Type", "text/plain");
-      res.send(JSON.stringify(information));
+      res.send(JSON.stringify(information, null, 2));
     } else {
       res.json(information);
     }
@@ -56,7 +61,6 @@ app.post("/stop", async (_: Request, res: Response) => {
   }
 });
 export default app;
-
 
 /**
  * Collect information from both service1 and service2.

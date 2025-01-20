@@ -74,7 +74,9 @@ apiApp.put("/state", async (req: Request, res: Response) => {
     return;
   }
   if (!isValidState(newState)) {
-    res.status(400).send("Invalid state.");
+    res
+      .status(400)
+      .send("Invalid state or missing 'Content-Type: text/plain' header.");
     return;
   }
   if (!isValidStateTransition(getState(), newState)) {
